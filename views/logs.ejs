@@ -1,0 +1,47 @@
+<%- include('partials/header') %>
+
+<div class="card">
+  <div class="card-header">
+    <h2>Audit Log <span class="count-badge"><%= logs.length %></span></h2>
+    <span class="text-muted" style="font-size:0.85rem">Last 100 entries</span>
+  </div>
+
+  <% if (logs.length === 0) { %>
+    <div class="empty-state">No log entries yet.</div>
+  <% } else { %>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Action</th>
+          <th>Target User</th>
+          <th>Admin</th>
+          <th>Note</th>
+          <th>Timestamp</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% logs.forEach(log => { %>
+          <tr>
+            <td><span class="badge badge-<%= log.action %>"><%= log.action.toUpperCase() %></span></td>
+            <td>
+              <% if (log.targetUsername) { %>
+                @<%= log.targetUsername %>
+              <% } else if (log.targetUserId) { %>
+                <span class="text-mono text-muted"><%= log.targetUserId %></span>
+              <% } else { %>
+                —
+              <% } %>
+            </td>
+            <td><%= log.performedBy %></td>
+            <td class="text-muted"><%= log.note || '—' %></td>
+            <td class="text-muted text-mono" style="font-size:0.8rem">
+              <%= new Date(log.createdAt).toLocaleString() %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,138 @@
+<%- include('partials/header') %>
+
+<div class="tab-bar">
+  <a href="/admin/users?status=pending"               class="tab <%= status === 'pending'               ? 'active' : '' %>">⏳ Pending</a>
+  <a href="/admin/users?status=awaiting_manual_proof" class="tab <%= status === 'awaiting_manual_proof' ? 'active' : '' %>">📸 Awaiting Receipt</a>
+  <a href="/admin/users?status=approved"              class="tab <%= status === 'approved'              ? 'active' : '' %>">✅ Approved</a>
+  <a href="/admin/users?status=rejected"              class="tab <%= status === 'rejected'              ? 'active' : '' %>">❌ Rejected</a>
+  <a href="/admin/users?status=banned"                class="tab <%= status === 'banned'                ? 'active' : '' %>">⛔ Banned</a>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h2><%= status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) %>
+      <span class="count-badge"><%= total %></span>
+    </h2>
+  </div>
+
+  <% if (users.length === 0) { %>
+    <div class="empty-state">No users with this status.</div>
+  <% } else { %>
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Telegram ID</th>
+            <th>Payment</th>
+            <th>Receipt</th>
+            <th>Requested</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% users.forEach(user => {
+               const proofUrl = proofUrls[user._id.toString()];
+          %>
+            <tr>
+
+              <%/* ── User identity ── */%>
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar">
+                    <%= (user.firstName || user.username || '?')[0].toUpperCase() %>
+                  </div>
+                  <div>
+                    <div class="user-name"><%= user.displayName %></div>
+                    <% if (user.username) { %>
+                      <div class="user-handle">@<%= user.username %></div>
+                    <% } %>
+                  </div>
+                </div>
+              </td>
+
+              <%/* ── Telegram ID ── */%>
+              <td class="text-mono text-muted"><%= user.telegramId %></td>
+
+              <%/* ── Payment method badge ── */%>
+              <td>
+                <% if (user.paymentMethod === 'stripe') { %>
+                  <span class="badge badge-stripe">💳 Stripe</span>
+                <% } else if (user.paymentMethod === 'manual') { %>
+                  <span class="badge badge-manual">🧾 Receipt</span>
+                <% } else { %>
+                  <span class="text-muted">—</span>
+                <% } %>
+              </td>
+
+              <%/* ── Proof image (inline thumbnail + full-page link) ── */%>
+              <td class="proof-cell">
+                <% if (proofUrl) { %>
+                  <a href="/admin/users/<%= user._id %>/proof" target="_blank" class="proof-thumb-wrap" title="Click to open full size">
+                    <img src="<%= proofUrl %>" alt="Receipt" class="proof-thumb" />
+                    <span class="proof-label">View full</span>
+                  </a>
+                <% } else if (user.paymentProof) { %>
+                  <%/* file_id exists but URL fetch failed — fall back to link-only */%>
+                  <a href="/admin/users/<%= user._id %>/proof" target="_blank" class="btn btn-sm btn-ghost">📎 Open</a>
+                <% } else { %>
+                  <span class="text-muted">—</span>
+                <% } %>
+              </td>
+
+              <%/* ── Requested date ── */%>
+              <td class="text-muted">
+                <%= user.requestedAt ? new Date(user.requestedAt).toLocaleDateString() : '—' %>
+              </td>
+
+              <%/* ── Action buttons ── */%>
+              <td>
+                <div class="action-row">
+                  <% if (['pending','rejected','awaiting_manual_proof'].includes(user.status)) { %>
+                    <form action="/admin/users/<%= user._id %>/approve" method="POST">
+                      <button class="btn btn-sm btn-success">Approve</button>
+                    </form>
+                  <% } %>
+
+                  <% if (['pending','awaiting_manual_proof'].includes(user.status)) { %>
+                    <form action="/admin/users/<%= user._id %>/reject" method="POST">
+                      <button class="btn btn-sm btn-danger">Reject</button>
+                    </form>
+                  <% } %>
+
+                  <% if (user.status !== 'banned') { %>
+                    <form action="/admin/users/<%= user._id %>/ban" method="POST"
+                          onsubmit="return confirm('Ban <%= user.displayName %>?')">
+                      <button class="btn btn-sm btn-warning">Ban</button>
+                    </form>
+                  <% } %>
+
+                  <% if (user.status === 'banned') { %>
+                    <form action="/admin/users/<%= user._id %>/unban" method="POST">
+                      <button class="btn btn-sm btn-outline">Unban</button>
+                    </form>
+                  <% } %>
+
+                  <% if (user.status === 'approved' && user.inviteLink) { %>
+                    <a href="<%= user.inviteLink %>" target="_blank" class="btn btn-sm btn-ghost">🔗 Link</a>
+                  <% } %>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if (totalPages > 1) { %>
+      <div class="pagination">
+        <% for (let i = 1; i <= totalPages; i++) { %>
+          <a href="/admin/users?status=<%= status %>&page=<%= i %>"
+             class="page-btn <%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+        <% } %>
+      </div>
+    <% } %>
+  <% } %>
+</div>
+
+<%- include('partials/footer') %>

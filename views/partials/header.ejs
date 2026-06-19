@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %> — TGBot Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <span>🤖</span> TGBot Admin
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="/admin" class="<%= title === 'Dashboard' ? 'active' : '' %>">📊 Dashboard</a></li>
+      <li><a href="/admin/users?status=pending" class="<%= title === 'Users' ? 'active' : '' %>">👥 Users</a></li>
+      <li><a href="/admin/logs" class="<%= title === 'Audit Logs' ? 'active' : '' %>">📋 Audit Logs</a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <span class="admin-badge">👤 <%= adminUsername %></span>
+      <a href="/admin/logout" class="btn-logout">Sign Out</a>
+    </div>
+  </nav>
+  <main class="main-content">
+    <div class="page-header">
+      <h1><%= title %></h1>
+    </div>
+
+    <% if (flash.success && flash.success.length) { %>
+      <div class="alert alert-success"><%= flash.success[0] %></div>
+    <% } %>
+    <% if (flash.error && flash.error.length) { %>
+      <div class="alert alert-error"><%= flash.error[0] %></div>
+    <% } %>

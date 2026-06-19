@@ -1,0 +1,82 @@
+<%- include('partials/header') %>
+
+<div class="stats-grid">
+  <a href="/admin/users?status=pending" class="stat-card stat-pending">
+    <div class="stat-icon">⏳</div>
+    <div class="stat-body">
+      <div class="stat-number"><%= stats.pending %></div>
+      <div class="stat-label">Pending Review</div>
+    </div>
+  </a>
+  <a href="/admin/users?status=awaiting_manual_proof" class="stat-card stat-awaiting">
+    <div class="stat-icon">📸</div>
+    <div class="stat-body">
+      <div class="stat-number"><%= stats.awaitingProof %></div>
+      <div class="stat-label">Awaiting Receipt</div>
+    </div>
+  </a>
+  <a href="/admin/users?status=approved" class="stat-card stat-approved">
+    <div class="stat-icon">✅</div>
+    <div class="stat-body">
+      <div class="stat-number"><%= stats.approved %></div>
+      <div class="stat-label">Approved</div>
+    </div>
+  </a>
+  <a href="/admin/users?status=rejected" class="stat-card stat-rejected">
+    <div class="stat-icon">❌</div>
+    <div class="stat-body">
+      <div class="stat-number"><%= stats.rejected %></div>
+      <div class="stat-label">Rejected</div>
+    </div>
+  </a>
+  <a href="/admin/users?status=banned" class="stat-card stat-banned">
+    <div class="stat-icon">⛔</div>
+    <div class="stat-body">
+      <div class="stat-number"><%= stats.banned %></div>
+      <div class="stat-label">Banned</div>
+    </div>
+  </a>
+</div>
+
+<div class="card mt-6">
+  <div class="card-header">
+    <h2>Recent Activity</h2>
+    <a href="/admin/logs" class="btn btn-ghost btn-sm">View all →</a>
+  </div>
+  <% if (recentLogs.length === 0) { %>
+    <div class="empty-state">No activity yet.</div>
+  <% } else { %>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Action</th>
+          <th>Target User</th>
+          <th>Performed By</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% recentLogs.forEach(log => { %>
+          <tr>
+            <td><span class="badge badge-<%= log.action %>"><%= log.action.toUpperCase() %></span></td>
+            <td><%= log.targetUsername ? '@' + log.targetUsername : (log.targetUserId || '—') %></td>
+            <td><%= log.performedBy %></td>
+            <td class="text-muted"><%= new Date(log.createdAt).toLocaleString() %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+
+<div class="card mt-4">
+  <div class="card-header"><h2>Quick Actions</h2></div>
+  <div class="quick-actions">
+    <a href="/admin/users?status=pending"              class="btn btn-primary">Review Pending</a>
+    <a href="/admin/users?status=awaiting_manual_proof" class="btn btn-outline">Review Receipts</a>
+    <a href="/admin/users?status=approved"             class="btn btn-outline">Approved Members</a>
+    <a href="/admin/logs"                              class="btn btn-outline">Audit Logs</a>
+  </div>
+</div>
+
+<%- include('partials/footer') %>
