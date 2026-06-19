@@ -1,12 +1,14 @@
-const AdminLog = require('../models/AdminLog');
+const AdminLog = require("../models/AdminLog");
 
 exports.getLogin = (req, res) => {
-  if (req.session.isAdmin) return res.redirect('/admin');
-  res.render('login', { title: 'Admin Login', flash: req.flash() });
+  if (req.session.isAdmin) return res.redirect("/admin");
+  // Fixed: Pointing to 'admin/login' instead of 'login'
+  res.render("admin/login", { title: "Admin Login", flash: req.flash() });
 };
 
 exports.postLogin = async (req, res) => {
   const { username, password } = req.body;
+  console.log(`[Auth] Login attempt for user: ${username}`);
 
   if (
     username === process.env.ADMIN_USERNAME &&
@@ -16,20 +18,24 @@ exports.postLogin = async (req, res) => {
     req.session.adminUsername = username;
 
     await AdminLog.create({
-      action: 'login',
+      action: "login",
       performedBy: username,
       note: `Login from IP: ${req.ip}`,
-    }).catch(() => {});
+    }).catch((e) => console.error("[Auth] Log error:", e));
 
-    return res.redirect('/admin');
+    console.log("[Auth] Login successful, redirecting...");
+    return req.session.save(() => {
+      res.redirect("/admin");
+    });
   }
 
-  req.flash('error', 'Invalid username or password.');
-  res.redirect('/admin/login');
+  console.warn("[Auth] Invalid login attempt.");
+  req.flash("error", "Invalid username or password.");
+  res.redirect("/admin/login");
 };
 
 exports.logout = (req, res) => {
   req.session.destroy(() => {
-    res.redirect('/admin/login');
+    res.redirect("/admin/login");
   });
 };
