@@ -319,7 +319,7 @@ bot.action("pay_manual", async (ctx) => {
 
     await ctx.editMessageText(
       `🧾 *Upload your payment receipt*\n\n` +
-        `Please send a *photo* of your payment confirmation (bank transfer, CBE Birr, telebirr, etc.).\n\n` +
+        `Please send a *photo* of your payment confirmation (bank transfer, CBE Birr, telebirr, etc.).\n\n``Account number cbe = 1000 \n``telebirr - 0987654321\n\n` +
         `📸 _Just send the photo directly in this chat — no caption needed._`,
       { parse_mode: "Markdown" },
     );
